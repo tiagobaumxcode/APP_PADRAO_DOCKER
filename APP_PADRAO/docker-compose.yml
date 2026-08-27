@@ -1,0 +1,55 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      args:
+        user: laravel
+        uid: 1000
+    image: laravel-base-app
+    container_name: projeto_app
+    restart: unless-stopped
+    working_dir: /var/www
+    environment:
+      - PATH=/home/laravel/.config/composer/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    volumes:
+      - ./src:/var/www
+    networks:
+      - rede-projeto
+
+  web:
+    image: nginx:alpine
+    container_name: projeto_web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./src:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - rede-projeto
+    depends_on:
+      - app
+
+  db:
+    image: postgres:16-alpine
+    container_name: projeto_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-laravel_db}
+      POSTGRES_USER: ${DB_USERNAME:-laravel_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - rede-projeto
+
+networks:
+  rede-projeto:
+    driver: bridge
+
+volumes:
+  pgdata:
+    driver: local
