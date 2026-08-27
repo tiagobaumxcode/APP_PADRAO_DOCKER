@@ -132,3 +132,23 @@ docker compose exec app composer dump-autoload && docker compose exec app php ar
 - `src/` — Código-fonte da aplicação Laravel.
     
 - `docker-compose.yml` — Mapeamento dos serviços (App, Web, PostgreSQL).
+
+------------------------------------------------------------------------------------------
+
+## Fluxo para Criar um Projeto Novo a Partir desse Modelo
+
+Quando você quiser iniciar um novo sistema do zero:
+Passo A: Clonar e Desvincular do Git Antigo
+Bash
+
+# 1. Clona em uma nova pasta com o nome do novo projeto
+git clone URL_DO_SEU_REPOSITORIO_MODELO.git novo-projeto
+cd novo-projeto
+
+# 2. Apaga o histórico do Git antigo para começar um projeto limpo
+rm -rf .git
+
+# 3. Inicializa um repositório Git novo e vincula ao novo projeto
+git init
+git branch -M main
+git remote add origin URL_DO_NOVO_REPOSITORIO.git
