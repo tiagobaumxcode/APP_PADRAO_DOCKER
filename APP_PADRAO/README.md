@@ -130,3 +130,50 @@ docker compose exec app composer dump-autoload && docker compose exec app php ar
     
 - `docker-compose.yml` — Mapeamento dos serviços (App, Web, PostgreSQL).
 
+
+
+# Passo a Passo para Gerar o Pacote Offline (EM CASO DE NAO POSSUIR CONEXAO INTERNET)
+
+1. Garantir as dependências do PHP no código:
+
+Certifique-se de que a pasta src/vendor exista e esteja completa. Para garantir que ela seja levada pelo pendrive junto com o código,
+remova a linha /vendor do arquivo src/.gitignore temporariamente ou inclua a pasta compactada no pendrive.
+
+2. Exportar as Imagens Docker para um arquivo .tar:
+
+Na raiz do seu projeto (onde as imagens já foram baixadas/construídas), rode:
+
+Bash
+```
+docker save -o docker_imagens.tar php:8.3-fpm postgres:alpine nginx:alpine
+```
+(Se você utilizou uma imagem customizada construída localmente, use o nome da imagem gerada pelo seu docker-compose.yml).
+
+3. Copiar para o Pendrive:
+Copie para o pendrive:
+A pasta do projeto APP_PADRAO/ (incluindo a pasta src/vendor).
+ O arquivo docker_imagens.tar.
+
+Passo a Passo para Rodar na Máquina Nova (Sem Internet)
+
+Na nova máquina do seu local de trabalho:
+
+1. Carregar as Imagens no Docker Local:
+Bash
+```
+docker load -i docker_imagens.tar
+```
+2. Entrar na pasta e criar o arquivo de ambiente:
+Bash
+```
+cd APP_PADRAO
+cp src/.env.example src/.env
+```
+3. Subir os contêineres e inicializar o banco:
+Como as imagens já estarão carregadas localmente e a pasta vendor já estará presente no código, não haverá tentativa de download externo:
+Bash
+```
+docker compose up -d
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate
+```
